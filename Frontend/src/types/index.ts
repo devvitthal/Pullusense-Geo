@@ -18,10 +18,3 @@ export interface AQILevel {
   glow: string;
   range: [number, number];
 }
-
-export type ViewMode = "dashboard" | "history";
-
-export interface AppRoute {
-  view: ViewMode;
-  nodeId?: string;
-}

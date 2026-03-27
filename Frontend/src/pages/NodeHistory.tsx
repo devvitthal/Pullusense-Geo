@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
+import { useParams, useOutletContext } from "react-router-dom";
 import type { SensorReading } from "../types";
+import type { RefreshContext } from "../App";
 import { sensorApi } from "../api/sensorApi";
 import { getAQILevel } from "../utils/aqi";
 import AQIBadge from "../components/AQIBadge";
@@ -8,19 +10,10 @@ import HistoryTable from "../components/HistoryTable";
 import StatCard from "../components/StatCard";
 import Spinner from "../components/Spinner";
 
-interface NodeHistoryProps {
-  nodeId: string;
-  onRefreshRef: (fn: () => void) => void;
-  onRefreshingChange: (v: boolean) => void;
-  onLastRefreshChange: (d: Date) => void;
-}
-
-export default function NodeHistory({
-  nodeId,
-  onRefreshRef,
-  onRefreshingChange,
-  onLastRefreshChange,
-}: NodeHistoryProps) {
+export default function NodeHistory() {
+  const { nodeId = "" } = useParams<{ nodeId: string }>();
+  const { onRefreshRef, onRefreshingChange, onLastRefreshChange } =
+    useOutletContext<RefreshContext>();
   const [history, setHistory] = useState<SensorReading[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -85,7 +78,7 @@ export default function NodeHistory({
   ).toFixed(1);
 
   return (
-    <div className="flex-1 px-5 py-5 space-y-5 max-w-screen-xl mx-auto w-full">
+    <div className="flex-1 px-5 py-5 space-y-5 max-w-7xl mx-auto w-full">
       {/* Node banner */}
       {latest && aqiLevel && (
         <div className="panel px-5 py-4 flex flex-wrap items-center gap-x-8 gap-y-3">

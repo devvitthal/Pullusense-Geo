@@ -1,5 +1,7 @@
 ﻿import { useState, useEffect, useCallback } from "react";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import type { SensorReading } from "../types";
+import type { RefreshContext } from "../App";
 import { sensorApi } from "../api/sensorApi";
 import { getAQILevel } from "../utils/aqi";
 import NodeCard from "../components/NodeCard";
@@ -9,19 +11,10 @@ import Spinner from "../components/Spinner";
 
 const NODE_PAGE_SIZE = 12;
 
-interface DashboardProps {
-  onSelectNode: (nodeId: string) => void;
-  onRefreshRef: (fn: () => void) => void;
-  onRefreshingChange: (v: boolean) => void;
-  onLastRefreshChange: (d: Date) => void;
-}
-
-export default function Dashboard({
-  onSelectNode,
-  onRefreshRef,
-  onRefreshingChange,
-  onLastRefreshChange,
-}: DashboardProps) {
+export default function Dashboard() {
+  const navigate = useNavigate();
+  const { onRefreshRef, onRefreshingChange, onLastRefreshChange } =
+    useOutletContext<RefreshContext>();
   const [readings, setReadings] = useState<SensorReading[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -135,7 +128,7 @@ export default function Dashboard({
   }
 
   return (
-    <div className="flex-1 px-5 py-5 space-y-5 max-w-screen-xl mx-auto w-full">
+    <div className="flex-1 px-5 py-5 space-y-5 max-w-7xl mx-auto w-full">
       {/* Summary stat row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatCard
@@ -239,7 +232,7 @@ export default function Dashboard({
           <NodeCard
             key={reading.nodeId}
             reading={reading}
-            onClick={() => onSelectNode(reading.nodeId)}
+            onClick={() => navigate(`/node/${reading.nodeId}`)}
           />
         ))}
       </div>
@@ -273,7 +266,7 @@ export default function Dashboard({
             className="flex items-center gap-1.5 text-xs text-slate-400"
           >
             <span
-              className="w-2 h-2 rounded-full flex-shrink-0"
+              className="w-2 h-2 rounded-full shrink-0"
               style={{ background: l.color }}
             />
             {l.label}

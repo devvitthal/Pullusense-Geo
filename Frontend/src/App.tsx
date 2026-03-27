@@ -1,14 +1,20 @@
 import { useState, useRef, useCallback } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-import type { AppRoute } from "./types";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import Header from "./components/Header";
 import Dashboard from "./pages/Dashboard";
 import NodeHistory from "./pages/NodeHistory";
+import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import OAuth2RedirectHandler from "./pages/OAuth2RedirectHandler";
 import { useAuth } from "./context/AuthContext";
 import "./index.css";
+
+export interface RefreshContext {
+  onRefreshRef: (fn: () => void) => void;
+  onRefreshingChange: (v: boolean) => void;
+  onLastRefreshChange: (d: Date) => void;
+}
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
@@ -17,49 +23,34 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-function MainApp() {
-  const [route, setRoute] = useState<AppRoute>({ view: "dashboard" });
+function MainLayout() {
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
-
   const refreshFnRef = useRef<() => void>(() => {});
+
   const setRefreshFn = useCallback((fn: () => void) => {
     refreshFnRef.current = fn;
   }, []);
 
+  const ctx: RefreshContext = {
+    onRefreshRef: setRefreshFn,
+    onRefreshingChange: setRefreshing,
+    onLastRefreshChange: setLastRefresh,
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header
-        route={route}
-        onNavigate={setRoute}
         lastRefresh={lastRefresh}
         refreshing={refreshing}
         onRefresh={() => refreshFnRef.current()}
       />
-
       <main className="flex-1 flex flex-col">
-        {route.view === "dashboard" && (
-          <Dashboard
-            onSelectNode={(nodeId) => setRoute({ view: "history", nodeId })}
-            onRefreshRef={setRefreshFn}
-            onRefreshingChange={setRefreshing}
-            onLastRefreshChange={setLastRefresh}
-          />
-        )}
-        {route.view === "history" && route.nodeId && (
-          <NodeHistory
-            nodeId={route.nodeId}
-            onRefreshRef={setRefreshFn}
-            onRefreshingChange={setRefreshing}
-            onLastRefreshChange={setLastRefresh}
-          />
-        )}
+        <Outlet context={ctx} />
       </main>
-
-      <footer className="h-10 flex items-center justify-center border-t border-slate-800">
+      <footer className="h-10 flex items-center justify-center border-t border-slate-800/60">
         <p className="text-xs text-slate-700">
-          PolluSense Geo — IoT Air Quality Monitoring — auto-refreshes every 10
-          s
+          PolluSense Geo &mdash; IoT Air Quality Monitoring
         </p>
       </footer>
     </div>
@@ -72,11 +63,20 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
-      <Route path="/*" element={
-        <ProtectedRoute>
-          <MainApp />
-        </ProtectedRoute>
-      } />
+      <Route
+        element={
+          <ProtectedRoute>
+            <MainLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/node/:nodeId" element={<NodeHistory />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Route>
     </Routes>
   );
 }
+

@@ -26,16 +26,16 @@ public class SecurityConfig {
 
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
-    
+
     @Autowired
     private CustomOAuth2UserService customOAuth2UserService;
-    
+
     @Autowired
     private CustomOidcUserService customOidcUserService;
 
     @Autowired
     private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
-    
+
     @Autowired
     private OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 
@@ -65,24 +65,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(org.springframework.security.config.Customizer.withDefaults())
-            .csrf(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> 
-                    auth.requestMatchers("/api/auth/**").permitAll()
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/test/**").permitAll()
+                        .requestMatchers("/oauth2/**").permitAll()
+                        .requestMatchers("/login/oauth2/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/sensor-data").permitAll()
                         .requestMatchers("/error").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .oauth2Login(oauth2 -> 
-                    oauth2.userInfoEndpoint(userInfo -> {
-                                userInfo.userService(customOAuth2UserService);
-                                userInfo.oidcUserService(customOidcUserService);
-                            })
-                          .successHandler(oAuth2AuthenticationSuccessHandler)
-                          .failureHandler(oAuth2AuthenticationFailureHandler)
-                );
+                        .anyRequest().authenticated())
+                .oauth2Login(oauth2 -> oauth2.userInfoEndpoint(userInfo -> {
+                    userInfo.userService(customOAuth2UserService);
+                    userInfo.oidcUserService(customOidcUserService);
+                })
+                        .successHandler(oAuth2AuthenticationSuccessHandler)
+                        .failureHandler(oAuth2AuthenticationFailureHandler));
 
         http.authenticationProvider(authenticationProvider());
 
@@ -98,7 +96,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(java.util.Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
         configuration.setAllowCredentials(true);
-        
+
         org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
