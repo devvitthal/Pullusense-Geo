@@ -20,7 +20,7 @@ export default function Login() {
     try {
       const response = await api.post('/auth/login', { email, password });
       const { token, id, email: userEmail, name, roles } = response.data;
-      loginUser(token, { id, email: userEmail, name, roles });
+      loginUser(token, { id, email: userEmail, name, roles, profileComplete: true });
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.');

@@ -7,6 +7,7 @@ export interface UserProfile {
   provider: string;
   mobileNumber: string | null;
   address: string | null;
+  profileComplete: boolean;
 }
 
 export interface UpdateProfileRequest {

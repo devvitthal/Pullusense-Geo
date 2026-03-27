@@ -34,6 +34,13 @@ export default function CompleteProfile() {
         return;
       }
 
+      // Mark profile as complete in localStorage so the route guard doesn't bounce us
+      const stored = localStorage.getItem('user');
+      if (stored) {
+        const u = JSON.parse(stored);
+        localStorage.setItem('user', JSON.stringify({ ...u, profileComplete: true }));
+      }
+
       window.location.href = '/dashboard';
     } catch {
       setError('Network error. Please try again.');

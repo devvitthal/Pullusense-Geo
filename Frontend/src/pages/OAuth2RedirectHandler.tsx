@@ -37,24 +37,20 @@ export default function OAuth2RedirectHandler() {
     })
       .then((r) => (r.ok ? r.json() : null))
       .then((profile) => {
+        const isComplete = !!(profile?.mobileNumber && profile?.address);
         const user = {
           id: profile?.id ?? 0,
           email: profile?.email ?? email,
           name: profile?.name ?? email.split('@')[0],
           roles: ['ROLE_USER'],
+          profileComplete: isComplete,
         };
         localStorage.setItem('user', JSON.stringify(user));
-
-        // Redirect to complete-profile if mobile/address are missing
-        if (!profile?.mobileNumber || !profile?.address) {
-          window.location.href = '/complete-profile';
-          return;
-        }
-        window.location.href = '/dashboard';
+        window.location.href = isComplete ? '/dashboard' : '/complete-profile';
       })
       .catch(() => {
         // Profile fetch failed — use what we decoded from the token
-        const user = { id: 0, email, name: email.split('@')[0], roles: ['ROLE_USER'] };
+        const user = { id: 0, email, name: email.split('@')[0], roles: ['ROLE_USER'], profileComplete: false };
         localStorage.setItem('user', JSON.stringify(user));
         // Can't verify completeness; send to complete-profile to be safe
         window.location.href = '/complete-profile';

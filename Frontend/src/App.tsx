@@ -24,6 +24,15 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+/** Redirects authenticated users whose profile is still incomplete. */
+const ProfileGuard = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
+  if (user?.profileComplete === false) {
+    return <Navigate to="/complete-profile" replace />;
+  }
+  return <>{children}</>;
+};
+
 function MainLayout() {
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
@@ -68,7 +77,9 @@ export default function App() {
       <Route
         element={
           <ProtectedRoute>
-            <MainLayout />
+            <ProfileGuard>
+              <MainLayout />
+            </ProfileGuard>
           </ProtectedRoute>
         }
       >

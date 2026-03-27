@@ -25,6 +25,14 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
+    // Profile incomplete — backend returned 403 with a specific code
+    if (
+      error.response?.status === 403 &&
+      error.response?.data?.code === "PROFILE_INCOMPLETE"
+    ) {
+      window.location.href = "/complete-profile";
+      return new Promise(() => {}); // swallow — redirect is underway
+    }
     if (error.response && error.response.status === 401) {
       // In a real app we might want to refresh tokens or log out
       // localStorage.removeItem("token");

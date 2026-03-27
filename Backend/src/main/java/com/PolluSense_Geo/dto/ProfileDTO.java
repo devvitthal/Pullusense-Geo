@@ -68,4 +68,10 @@ public class ProfileDTO {
     public void setAddress(String address) {
         this.address = address;
     }
+
+    /** Computed — true only when both mobileNumber and address are non-blank. */
+    public boolean isProfileComplete() {
+        return mobileNumber != null && !mobileNumber.isBlank()
+                && address != null && !address.isBlank();
+    }
 }
