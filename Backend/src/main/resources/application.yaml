@@ -38,6 +38,7 @@ spring:
 app:
   jwtSecret: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970" # Base64 encoded 256-bit key
   jwtExpirationMs: 86400000 # 24 hours
+  nodeApiKey: "pollusense-secret-node-key-2026"
   oauth2:
     redirectUri: "http://localhost:5173/oauth2/redirect"
 

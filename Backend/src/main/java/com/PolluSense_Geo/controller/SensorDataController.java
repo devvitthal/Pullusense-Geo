@@ -20,12 +20,18 @@ public class SensorDataController {
 
     private final SensorDataService sensorDataService;
 
+    @org.springframework.beans.factory.annotation.Value("${app.nodeApiKey}")
+    private String nodeApiKey;
+
     /**
      * POST /api/sensor-data
-     * Accepts a JSON payload from an IoT device and persists it.
+     * Accepts a JSON payload from an IoT device and persists it. Requires X-API-KEY.
      */
     @PostMapping
-    public ResponseEntity<SensorReading> ingestSensorData(@Valid @RequestBody SensorDataDTO dto) {
+    public ResponseEntity<?> ingestSensorData(@RequestHeader(value = "X-API-KEY", required = false) String apiKey, @Valid @RequestBody SensorDataDTO dto) {
+        if (apiKey == null || !apiKey.equals(nodeApiKey)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or missing X-API-KEY");
+        }
         log.info("POST /api/sensor-data from node={}", dto.getNodeId());
         SensorReading saved = sensorDataService.saveSensorData(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);

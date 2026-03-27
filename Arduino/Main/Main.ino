@@ -10,7 +10,7 @@ const char* ssid = "Vitthal's S24 FE";
 const char* password = "66666666";
 
 // ---------- API ----------
-const char* serverUrl = "http://10.58.117.58:8080/api/sensor-data";
+const char* serverUrl = "http://10.130.238.58:8080/api/sensor-data";
 
 // ---------- PINS ----------
 #define DHTPIN D1
@@ -78,6 +78,7 @@ void loop() {
 
     http.begin(client, serverUrl);
     http.addHeader("Content-Type", "application/json");
+    http.addHeader("X-API-KEY", "pollusense-secret-node-key-2026");
 
     StaticJsonDocument<256> doc;
 
