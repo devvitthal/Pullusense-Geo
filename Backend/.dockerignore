@@ -1,0 +1,19 @@
+# Git
+.git
+.gitignore
+
+# Secrets — never bake into image
+.env
+
+# Gradle caches and build output (re-built inside Docker)
+.gradle/
+build/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Logs
+*.log

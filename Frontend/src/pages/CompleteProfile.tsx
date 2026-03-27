@@ -1,38 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Phone, MapPin, CheckCircle } from 'lucide-react';
+import api from '../api/axiosConfig';
 
 export default function CompleteProfile() {
   const [mobileNumber, setMobileNumber] = useState('');
   const [address, setAddress] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  // On mount: if the profile is already complete, skip straight to dashboard.
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
+    api.get('/user/profile')
+      .then((res) => {
+        if (res.data?.profileComplete) {
+          // Patch localStorage and move on
+          const stored = localStorage.getItem('user');
+          if (stored) {
+            const u = JSON.parse(stored);
+            localStorage.setItem('user', JSON.stringify({ ...u, profileComplete: true }));
+          }
+          window.location.href = '/dashboard';
+        } else {
+          setChecking(false);
+        }
+      })
+      .catch(() => setChecking(false));
+  }, []);
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#080c14] text-white">
+        <div className="w-8 h-8 rounded-full border-t-2 border-r-2 border-[#6366f1] animate-spin" />
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    const token = localStorage.getItem('token');
-    if (!token) {
-      window.location.href = '/login';
-      return;
-    }
-
     try {
-      const res = await fetch('/api/user/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ mobileNumber, address }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        setError(data?.message || 'Failed to save profile. Please try again.');
-        return;
-      }
+      await api.put('/user/profile', { mobileNumber, address });
 
       // Mark profile as complete in localStorage so the route guard doesn't bounce us
       const stored = localStorage.getItem('user');
@@ -42,8 +57,9 @@ export default function CompleteProfile() {
       }
 
       window.location.href = '/dashboard';
-    } catch {
-      setError('Network error. Please try again.');
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setError(msg || 'Failed to save profile. Please try again.');
     } finally {
       setLoading(false);
     }
