@@ -1,51 +1,68 @@
 import { useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-
+import { useSearchParams } from 'react-router-dom';
 
 export default function OAuth2RedirectHandler() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const error = searchParams.get('error');
-  const navigate = useNavigate();
-  const { loginUser } = useAuth();
 
   useEffect(() => {
-    if (token) {
-      // Decode the JWT or fetch user details. Since our frontend doesn't have a jwt decode lib readily available
-      // we can fetch the user details from the backend using the token, or we could just use a generic user.
-      // Easiest is to decode it basically using atob if it's a standard JWT or fetch user profile from an endpoint.
-      // For now, let's create a minimal user and set the token.
-      
-      const parts = token.split('.');
-      if(parts.length === 3) {
-          try {
-              const payload = JSON.parse(atob(parts[1]));
-              const user = {
-                  id: 0, 
-                  email: payload.sub,
-                  name: payload.sub.split('@')[0], 
-                  roles: ['ROLE_USER']
-              };
-              loginUser(token, user);
-              navigate('/dashboard', { replace: true });
-          } catch(e) {
-              console.error("Failed to parse token", e);
-              navigate('/login?error=InvalidToken', { replace: true });
-          }
-      }
-    } else if (error) {
-      navigate(`/login?error=${encodeURIComponent(error)}`, { replace: true });
-    } else {
-      navigate('/login', { replace: true });
+    if (error) {
+      window.location.href = `/login?error=${encodeURIComponent(error)}`;
+      return;
     }
-  }, [token, error, navigate, loginUser]);
+
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
+
+    // Decode email from the JWT subject claim
+    let email = '';
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      email = payload.sub ?? '';
+    } catch {
+      window.location.href = '/login?error=InvalidToken';
+      return;
+    }
+
+    // Write token first so the profile request is authenticated via the Vite proxy
+    localStorage.setItem('token', token);
+
+    // Fetch the real profile (Vite proxies /api → http://localhost:8080)
+    // Fall back to JWT-decoded info so a transient error never blocks login
+    fetch('/api/user/profile', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((profile) => {
+        const user = {
+          id: profile?.id ?? 0,
+          email: profile?.email ?? email,
+          name: profile?.name ?? email.split('@')[0],
+          roles: ['ROLE_USER'],
+        };
+        localStorage.setItem('user', JSON.stringify(user));
+      })
+      .catch(() => {
+        // Profile fetch failed — use what we decoded from the token
+        const user = { id: 0, email, name: email.split('@')[0], roles: ['ROLE_USER'] };
+        localStorage.setItem('user', JSON.stringify(user));
+      })
+      .finally(() => {
+        // Hard reload so AuthProvider re-initialises from localStorage cleanly.
+        // This avoids the React state race condition where ProtectedRoute
+        // evaluates before loginUser()'s setState calls have committed.
+        window.location.href = '/dashboard';
+      });
+  }, [token, error]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#080c14] text-white">
       <div className="panel p-8 flex flex-col items-center">
         <div className="w-8 h-8 rounded-full border-t-2 border-r-2 border-[#6366f1] animate-spin mb-4" />
-        <p className="text-slate-300">Completing sign in...</p>
+        <p className="text-slate-300">Completing sign in…</p>
       </div>
     </div>
   );
