@@ -3,16 +3,19 @@ spring:
     name: PolluSense-Geo
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/pollusense_db
-    username: postgres
-    password: PgMarvel@241
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
+      maximum-pool-size: 5
+      minimum-idle: 1
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
+      data-source-properties:
+        sslmode: require
+        channelBinding: require
 
   jpa:
     hibernate:
@@ -36,9 +39,9 @@ spring:
               - profile
 
 app:
-  jwtSecret: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970" # Base64 encoded 256-bit key
+  jwtSecret: ${JWT_SECRET}
   jwtExpirationMs: 86400000 # 24 hours
-  nodeApiKey: "pollusense-secret-node-key-2026"
+  nodeApiKey: ${NODE_API_KEY}
   oauth2:
     redirectUri: "http://localhost:5173/oauth2/redirect"
 

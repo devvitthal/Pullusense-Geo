@@ -1,5 +1,6 @@
 package com.PolluSense_Geo.dto;
 
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class UpdateProfileRequest {
@@ -11,6 +12,12 @@ public class UpdateProfileRequest {
 
     @Size(min = 6, message = "New password must be at least 6 characters")
     private String newPassword;
+
+    @Pattern(regexp = "^[+]?[0-9]{7,15}$", message = "Enter a valid mobile number")
+    private String mobileNumber;
+
+    @Size(max = 500, message = "Address must not exceed 500 characters")
+    private String address;
 
     public String getName() {
         return name;
@@ -34,5 +41,21 @@ public class UpdateProfileRequest {
 
     public void setNewPassword(String newPassword) {
         this.newPassword = newPassword;
+    }
+
+    public String getMobileNumber() {
+        return mobileNumber;
+    }
+
+    public void setMobileNumber(String mobileNumber) {
+        this.mobileNumber = mobileNumber;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

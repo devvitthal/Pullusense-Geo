@@ -7,6 +7,7 @@ import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import OAuth2RedirectHandler from "./pages/OAuth2RedirectHandler";
+import CompleteProfile from "./pages/CompleteProfile";
 import { useAuth } from "./context/AuthContext";
 import "./index.css";
 
@@ -63,6 +64,7 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
+      <Route path="/complete-profile" element={<CompleteProfile />} />
       <Route
         element={
           <ProtectedRoute>

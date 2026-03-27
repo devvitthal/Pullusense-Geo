@@ -47,6 +47,14 @@ public class UserController {
             user.setName(request.getName().trim());
         }
 
+        if (request.getMobileNumber() != null && !request.getMobileNumber().isBlank()) {
+            user.setMobileNumber(request.getMobileNumber().trim());
+        }
+
+        if (request.getAddress() != null && !request.getAddress().isBlank()) {
+            user.setAddress(request.getAddress().trim());
+        }
+
         if (request.getNewPassword() != null && !request.getNewPassword().isBlank()) {
             if (user.getProvider() != AuthProvider.LOCAL) {
                 return ResponseEntity.badRequest()
@@ -66,6 +74,7 @@ public class UserController {
 
     private ProfileDTO toDTO(User user) {
         String provider = user.getProvider() != null ? user.getProvider().toString() : "LOCAL";
-        return new ProfileDTO(user.getId(), user.getName(), user.getEmail(), provider);
+        return new ProfileDTO(user.getId(), user.getName(), user.getEmail(), provider,
+                user.getMobileNumber(), user.getAddress());
     }
 }

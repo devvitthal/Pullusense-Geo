@@ -5,12 +5,16 @@ export interface UserProfile {
   name: string;
   email: string;
   provider: string;
+  mobileNumber: string | null;
+  address: string | null;
 }
 
 export interface UpdateProfileRequest {
   name?: string;
   currentPassword?: string;
   newPassword?: string;
+  mobileNumber?: string;
+  address?: string;
 }
 
 export const userApi = {

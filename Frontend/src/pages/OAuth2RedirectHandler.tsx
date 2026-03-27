@@ -44,18 +44,21 @@ export default function OAuth2RedirectHandler() {
           roles: ['ROLE_USER'],
         };
         localStorage.setItem('user', JSON.stringify(user));
+
+        // Redirect to complete-profile if mobile/address are missing
+        if (!profile?.mobileNumber || !profile?.address) {
+          window.location.href = '/complete-profile';
+          return;
+        }
+        window.location.href = '/dashboard';
       })
       .catch(() => {
         // Profile fetch failed — use what we decoded from the token
         const user = { id: 0, email, name: email.split('@')[0], roles: ['ROLE_USER'] };
         localStorage.setItem('user', JSON.stringify(user));
+        // Can't verify completeness; send to complete-profile to be safe
+        window.location.href = '/complete-profile';
       })
-      .finally(() => {
-        // Hard reload so AuthProvider re-initialises from localStorage cleanly.
-        // This avoids the React state race condition where ProtectedRoute
-        // evaluates before loginUser()'s setState calls have committed.
-        window.location.href = '/dashboard';
-      });
   }, [token, error]);
 
   return (

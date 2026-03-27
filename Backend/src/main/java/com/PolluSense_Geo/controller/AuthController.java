@@ -46,10 +46,11 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        
+
         User user = userRepository.findByEmail(loginRequest.getEmail()).orElse(null);
         if (user != null && !user.getProvider().equals(AuthProvider.LOCAL)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: User registered via " + user.getProvider() + ". Please use that method to login."));
+            return ResponseEntity.badRequest().body(new MessageResponse(
+                    "Error: User registered via " + user.getProvider() + ". Please use that method to login."));
         }
 
         Authentication authentication = authenticationManager.authenticate(
@@ -83,6 +84,8 @@ public class AuthController {
         user.setName(signUpRequest.getName());
         user.setEmail(signUpRequest.getEmail());
         user.setPassword(encoder.encode(signUpRequest.getPassword()));
+        user.setMobileNumber(signUpRequest.getMobileNumber());
+        user.setAddress(signUpRequest.getAddress());
         user.setProvider(AuthProvider.LOCAL);
 
         Role userRole = roleRepository.findByName("ROLE_USER")
