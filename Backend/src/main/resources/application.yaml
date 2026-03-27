@@ -24,6 +24,23 @@ spring:
         format_sql: true
     open-in-view: false
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
+
+app:
+  jwtSecret: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970" # Base64 encoded 256-bit key
+  jwtExpirationMs: 86400000 # 24 hours
+  oauth2:
+    redirectUri: "http://localhost:5173/oauth2/redirect"
+
 server:
   port: 8080
 

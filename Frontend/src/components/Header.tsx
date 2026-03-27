@@ -1,4 +1,5 @@
 import type { AppRoute } from "../types";
+import { useAuth } from "../context/AuthContext";
 
 interface HeaderProps {
   route: AppRoute;
@@ -15,6 +16,7 @@ export default function Header({
   refreshing,
   onRefresh,
 }: HeaderProps) {
+  const { user, logoutUser } = useAuth();
   return (
     <header className="navbar sticky top-0 z-50 px-6 h-14 flex items-center justify-between gap-4">
       <div className="flex items-center gap-3">
@@ -89,6 +91,15 @@ export default function Header({
           </svg>
           Refresh
         </button>
+        
+        {user && (
+          <button
+            onClick={logoutUser}
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-md text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-white transition-colors border border-slate-700"
+          >
+            Logout
+          </button>
+        )}
       </div>
     </header>
   );

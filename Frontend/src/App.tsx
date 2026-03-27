@@ -1,11 +1,23 @@
 import { useState, useRef, useCallback } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import type { AppRoute } from "./types";
 import Header from "./components/Header";
 import Dashboard from "./pages/Dashboard";
 import NodeHistory from "./pages/NodeHistory";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import OAuth2RedirectHandler from "./pages/OAuth2RedirectHandler";
+import { useAuth } from "./context/AuthContext";
 import "./index.css";
 
-export default function App() {
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, isLoading } = useAuth();
+  if (isLoading) return null;
+  if (!user) return <Navigate to="/login" replace />;
+  return <>{children}</>;
+};
+
+function MainApp() {
   const [route, setRoute] = useState<AppRoute>({ view: "dashboard" });
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
@@ -51,5 +63,20 @@ export default function App() {
         </p>
       </footer>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
+      <Route path="/*" element={
+        <ProtectedRoute>
+          <MainApp />
+        </ProtectedRoute>
+      } />
+    </Routes>
   );
 }
