@@ -96,6 +96,41 @@ npm run dev
 
 ---
 
+## Deploying the Backend
+
+The backend includes a multi-stage `Dockerfile` (Java 21 / Alpine). Build and run locally:
+
+```bash
+cd Backend
+
+# Build
+docker build -t pollusense-geo-backend .
+
+# Run (pass all secrets as env vars — never bake them into the image)
+docker run -p 8080:8080 \
+  -e DB_URL="jdbc:postgresql://..." \
+  -e DB_USERNAME="..." \
+  -e DB_PASSWORD="..." \
+  -e GOOGLE_CLIENT_ID="..." \
+  -e GOOGLE_CLIENT_SECRET="..." \
+  -e JWT_SECRET="..." \
+  -e NODE_API_KEY="..." \
+  pollusense-geo-backend
+```
+
+### Recommended cloud platforms
+
+| Platform             | How to deploy                                                   |
+| -------------------- | --------------------------------------------------------------- |
+| **Railway**          | Connect GitHub repo → Railway auto-detects `Backend/Dockerfile` |
+| **Render**           | New Web Service → Docker → set env vars in dashboard            |
+| **Fly.io**           | `cd Backend && fly launch` (reads Dockerfile automatically)     |
+| **Google Cloud Run** | `gcloud run deploy` after pushing to Artifact Registry          |
+
+> **Note:** Vercel does not support Spring Boot / Docker containers. Use one of the platforms above for the backend.
+
+---
+
 ## API Endpoints
 
 | Method | Path                                | Auth    | Description                 |

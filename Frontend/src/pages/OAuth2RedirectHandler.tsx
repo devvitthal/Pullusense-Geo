@@ -49,11 +49,14 @@ export default function OAuth2RedirectHandler() {
         window.location.href = isComplete ? '/dashboard' : '/complete-profile';
       })
       .catch(() => {
-        // Profile fetch failed — use what we decoded from the token
-        const user = { id: 0, email, name: email.split('@')[0], roles: ['ROLE_USER'], profileComplete: false };
+        // Profile fetch failed — fall back to what we decoded from the token.
+        // Default to /dashboard and let ProfileGuard + the backend interceptor
+        // catch any genuinely incomplete profile; never blindly send to
+        // /complete-profile on a network error because that would loop a
+        // returning user who already filled in their details.
+        const user = { id: 0, email, name: email.split('@')[0], roles: ['ROLE_USER'], profileComplete: true };
         localStorage.setItem('user', JSON.stringify(user));
-        // Can't verify completeness; send to complete-profile to be safe
-        window.location.href = '/complete-profile';
+        window.location.href = '/dashboard';
       })
   }, [token, error]);
 
