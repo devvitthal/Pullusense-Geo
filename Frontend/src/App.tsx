@@ -8,8 +8,6 @@ import Contact from "./pages/Contact";
 import Dashboard from "./pages/Dashboard";
 import NodeHistory from "./pages/NodeHistory";
 import Profile from "./pages/Profile";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
 import OAuth2RedirectHandler from "./pages/OAuth2RedirectHandler";
 import CompleteProfile from "./pages/CompleteProfile";
 import { useAuth } from "./context/AuthContext";
@@ -82,8 +80,6 @@ export default function App() {
       </Route>
 
       {/* ── Auth pages (no layout chrome) ── */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
       <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
       <Route path="/complete-profile" element={<CompleteProfile />} />
 
