@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Dashboard from "./pages/Dashboard";
+import MapView from "./pages/MapView";
 import NodeHistory from "./pages/NodeHistory";
 import Profile from "./pages/Profile";
 import OAuth2RedirectHandler from "./pages/OAuth2RedirectHandler";
@@ -94,6 +95,7 @@ export default function App() {
         }
       >
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/map" element={<MapView />} />
         <Route path="/node/:nodeId" element={<NodeHistory />} />
         <Route path="/profile" element={<Profile />} />
       </Route>

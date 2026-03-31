@@ -58,6 +58,7 @@ export default function Header({ lastRefresh, refreshing, onRefresh }: HeaderPro
       <nav className="hidden md:flex items-center gap-1">
         {[
           { to: "/dashboard", label: "Dashboard" },
+          { to: "/map", label: "Map" },
           { to: "/", label: "Home" },
           { to: "/about", label: "About" },
           { to: "/contact", label: "Contact" },
