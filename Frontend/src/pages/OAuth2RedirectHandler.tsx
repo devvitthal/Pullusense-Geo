@@ -1,19 +1,23 @@
-import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useSearchParams, Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function OAuth2RedirectHandler() {
   const [searchParams] = useSearchParams();
+  const { loginUser } = useAuth();
+  const [redirectTo, setRedirectTo] = useState<string | null>(null);
   const token = searchParams.get('token');
+  const hasError = searchParams.has('error');
   const error = searchParams.get('error');
 
   useEffect(() => {
-    if (error) {
-      window.location.href = `/login?error=${encodeURIComponent(error)}`;
+    if (hasError) {
+      setRedirectTo(`/?authError=${encodeURIComponent(error || 'OAuth2 authentication failed')}`);
       return;
     }
 
     if (!token) {
-      window.location.href = '/login';
+      setRedirectTo('/');
       return;
     }
 
@@ -23,15 +27,11 @@ export default function OAuth2RedirectHandler() {
       const payload = JSON.parse(atob(token.split('.')[1]));
       email = payload.sub ?? '';
     } catch {
-      window.location.href = '/login?error=InvalidToken';
+      setRedirectTo('/?authError=InvalidToken');
       return;
     }
 
-    // Write token first so the profile request is authenticated via the Vite proxy
-    localStorage.setItem('token', token);
-
     // Fetch the real profile (Vite proxies /api → http://localhost:8080)
-    // Fall back to JWT-decoded info so a transient error never blocks login
     fetch('/api/user/profile', {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -45,20 +45,19 @@ export default function OAuth2RedirectHandler() {
           roles: ['ROLE_USER'],
           profileComplete: isComplete,
         };
-        localStorage.setItem('user', JSON.stringify(user));
-        window.location.href = isComplete ? '/dashboard' : '/complete-profile';
+        loginUser(token, user);
+        setRedirectTo(isComplete ? '/dashboard' : '/complete-profile');
       })
       .catch(() => {
-        // Profile fetch failed — fall back to what we decoded from the token.
-        // Default to /dashboard and let ProfileGuard + the backend interceptor
-        // catch any genuinely incomplete profile; never blindly send to
-        // /complete-profile on a network error because that would loop a
-        // returning user who already filled in their details.
         const user = { id: 0, email, name: email.split('@')[0], roles: ['ROLE_USER'], profileComplete: true };
-        localStorage.setItem('user', JSON.stringify(user));
-        window.location.href = '/dashboard';
-      })
-  }, [token, error]);
+        loginUser(token, user);
+        setRedirectTo('/dashboard');
+      });
+  }, [token, hasError, error, loginUser]);
+
+  if (redirectTo) {
+    return <Navigate to={redirectTo} replace />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#080c14] text-white">

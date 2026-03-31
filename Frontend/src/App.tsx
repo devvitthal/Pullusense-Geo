@@ -1,6 +1,10 @@
 import { useState, useRef, useCallback } from "react";
 import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import Header from "./components/Header";
+import PublicLayout from "./components/PublicLayout";
+import Home from "./pages/Home";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
 import Dashboard from "./pages/Dashboard";
 import NodeHistory from "./pages/NodeHistory";
 import Profile from "./pages/Profile";
@@ -20,7 +24,7 @@ export interface RefreshContext {
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
   if (isLoading) return null;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/" replace />;
   return <>{children}</>;
 };
 
@@ -70,10 +74,20 @@ function MainLayout() {
 export default function App() {
   return (
     <Routes>
+      {/* ── Public pages with shared layout ── */}
+      <Route element={<PublicLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+      </Route>
+
+      {/* ── Auth pages (no layout chrome) ── */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
       <Route path="/complete-profile" element={<CompleteProfile />} />
+
+      {/* ── Protected dashboard ── */}
       <Route
         element={
           <ProtectedRoute>
@@ -83,12 +97,12 @@ export default function App() {
           </ProtectedRoute>
         }
       >
-        <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/node/:nodeId" element={<NodeHistory />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

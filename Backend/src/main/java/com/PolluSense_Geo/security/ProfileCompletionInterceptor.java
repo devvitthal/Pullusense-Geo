@@ -2,7 +2,7 @@ package com.PolluSense_Geo.security;
 
 import com.PolluSense_Geo.entity.User;
 import com.PolluSense_Geo.repository.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;

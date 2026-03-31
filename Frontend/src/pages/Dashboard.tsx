@@ -8,6 +8,7 @@ import NodeCard from "../components/NodeCard";
 import StatCard from "../components/StatCard";
 import Pagination from "../components/Pagination";
 import Spinner from "../components/Spinner";
+import HealthAlertBanner from "../components/HealthAlertBanner";
 
 const NODE_PAGE_SIZE = 12;
 
@@ -129,6 +130,9 @@ export default function Dashboard() {
 
   return (
     <div className="flex-1 px-5 py-5 space-y-5 max-w-7xl mx-auto w-full">
+      {/* Health advisory banner */}
+      <HealthAlertBanner />
+
       {/* Summary stat row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatCard

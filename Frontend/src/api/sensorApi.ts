@@ -1,5 +1,5 @@
 import api from "./axiosConfig";
-import type { SensorReading } from "../types";
+import type { SensorReading, HealthAlert } from "../types";
 
 export const sensorApi = {
   /** POST – ingest a reading (primarily for testing via the UI) */
@@ -16,5 +16,13 @@ export const sensorApi = {
 
   /** GET /history/:nodeId – full history for one node */
   getHistoryByNode: (nodeId: string) =>
-    api.get<SensorReading[]>(`/sensor-data/history/${nodeId}`).then((r) => r.data),
+    api
+      .get<SensorReading[]>(`/sensor-data/history/${nodeId}`)
+      .then((r) => r.data),
+
+  /** GET /health-alert?lat=...&lon=... – AI-powered health advisory */
+  getHealthAlert: (lat: number, lon: number) =>
+    api
+      .get<HealthAlert>("/health-alert", { params: { lat, lon } })
+      .then((r) => r.data),
 };

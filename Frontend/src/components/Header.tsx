@@ -37,7 +37,7 @@ export default function Header({ lastRefresh, refreshing, onRefresh }: HeaderPro
   const showRefresh = location.pathname !== "/profile";
 
   return (
-    <header className="navbar sticky top-0 z-50 px-6 h-16 flex items-center justify-between gap-4">
+    <header className="navbar sticky top-0 z-50 px-6 py-2 h-16 flex items-center justify-between gap-4">
       {/* Logo + Brand — click navigates to dashboard */}
       <button
         onClick={() => navigate("/dashboard")}
@@ -53,6 +53,28 @@ export default function Header({ lastRefresh, refreshing, onRefresh }: HeaderPro
           <span className="text-sm font-light text-slate-400"> Geo</span>
         </div>
       </button>
+
+      {/* Nav links */}
+      <nav className="hidden md:flex items-center gap-1">
+        {[
+          { to: "/dashboard", label: "Dashboard" },
+          { to: "/", label: "Home" },
+          { to: "/about", label: "About" },
+          { to: "/contact", label: "Contact" },
+        ].map(({ to, label }) => (
+          <button
+            key={to}
+            onClick={() => navigate(to)}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              location.pathname === to
+                ? "text-white bg-slate-800/60"
+                : "text-slate-400 hover:text-white hover:bg-slate-800/40"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
 
       {/* Right actions */}
       <div className="flex items-center gap-2.5 shrink-0">

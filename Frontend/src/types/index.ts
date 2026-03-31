@@ -18,3 +18,18 @@ export interface AQILevel {
   glow: string;
   range: [number, number];
 }
+
+export interface HealthAlert {
+  severity: string;
+  aqi: number;
+  temperature: number;
+  nodeId: string;
+  locationName: string | null;
+  distanceKm: number;
+  temperatureAlert: string | null;
+  summary: string;
+  aqiAdvice: string;
+  tempAdvice: string;
+  sensitiveGroups: string;
+  actionTip: string;
+}
