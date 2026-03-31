@@ -6,11 +6,11 @@
 #include <SoftwareSerial.h>
 
 // ---------- WIFI ----------
-const char* ssid = "Vitthal's S24 FE";
-const char* password = "66666666";
+const char *ssid = "Vitthal's S24 FE";
+const char *password = "66666666";
 
 // ---------- API ----------
-const char* serverUrl = "http://10.130.238.58:8080/api/sensor-data";
+const char *serverUrl = "https://pollusense-geo-api.onrender.com/api/sensor-data";
 
 // ---------- PINS ----------
 #define DHTPIN D1
@@ -26,18 +26,20 @@ DHT dht(DHTPIN, DHTTYPE);
 #define ADC_MAX 1023
 #define V_REF 3.3
 
-void setup() {
+void setup()
+{
   Serial.begin(9600);
   dht.begin();
   gpsSerial.begin(9600);
 
   Serial.println("System Starting...");
-  delay(20000);  // MQ warmup
+  delay(20000); // MQ warmup
 
   WiFi.begin(ssid, password);
   Serial.print("Connecting to WiFi");
 
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED)
+  {
     delay(500);
     Serial.print(".");
   }
@@ -48,7 +50,8 @@ void setup() {
   Serial.println("-----------------------------------");
 }
 
-void loop() {
+void loop()
+{
 
   // -------- READ MQ135 --------
   int rawAir = analogRead(MQ135_PIN);
@@ -59,7 +62,8 @@ void loop() {
   float humidity = dht.readHumidity();
 
   // -------- READ GPS --------
-  while (gpsSerial.available()) {
+  while (gpsSerial.available())
+  {
     gps.encode(gpsSerial.read());
   }
 
@@ -71,9 +75,11 @@ void loop() {
 
   if (WiFi.status() == WL_CONNECTED &&
       !isnan(temperature) &&
-      !isnan(humidity)) {
+      !isnan(humidity))
+  {
 
-    WiFiClient client;
+    WiFiClientSecure client;
+    client.setInsecure();
     HTTPClient http;
 
     http.begin(client, serverUrl);
@@ -86,10 +92,11 @@ void loop() {
     doc["aqi"] = approxAQI;
     doc["temperature"] = temperature;
     doc["humidity"] = humidity;
-    doc["satellites"] = satelliteCount;   // ✅ Added satellite count
+    doc["satellites"] = satelliteCount; // ✅ Added satellite count
     doc["timestamp"] = millis();
 
-    if (gps.location.isValid()) {
+    if (gps.location.isValid())
+    {
       doc["latitude"] = gps.location.lat();
       doc["longitude"] = gps.location.lng();
 
@@ -98,7 +105,9 @@ void loop() {
 
       Serial.print("Longitude: ");
       Serial.println(gps.location.lng(), 6);
-    } else {
+    }
+    else
+    {
       doc["latitude"] = nullptr;
       doc["longitude"] = nullptr;
       Serial.println("GPS: No valid fix yet.");
@@ -112,9 +121,16 @@ void loop() {
     Serial.print("HTTP Response Code: ");
     Serial.println(httpResponseCode);
 
+    if (httpResponseCode > 0)
+    {
+      String response = http.getString();
+      Serial.println("Server Response: ");
+      Serial.println(response);
+    }
+
     http.end();
   }
 
   Serial.println("-----------------------------------");
-  delay(60000);  // Send every 60 seconds
+  delay(60000); // Send every 60 seconds
 }

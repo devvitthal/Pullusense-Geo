@@ -33,12 +33,12 @@ public class SensorDataServiceImpl implements SensorDataService {
         String locationName;
 
         if (latitude == null || longitude == null) {
-            // No GPS fix from IoT node — fall back to server's IP-based location
-            log.info("Latitude/Longitude is null for node={}. Using server location as fallback.",
+            // No GPS fix from IoT node — fall back to Wagholi, Pune
+            log.info("Latitude/Longitude is null for node={}. Using Wagholi, Pune as fallback.",
                     dto.getNodeId());
-            latitude     = geoLocationService.getLatitude();
-            longitude    = geoLocationService.getLongitude();
-            locationName = geoLocationService.getLocationName();
+            latitude     = 18.5808;
+            longitude    = 73.9787;
+            locationName = "Wagholi, Pune";
             log.info("Fallback coordinates: lat={}, lon={}, location={}", latitude, longitude, locationName);
         } else {
             // GPS fix available — reverse-geocode to get a human-readable name
