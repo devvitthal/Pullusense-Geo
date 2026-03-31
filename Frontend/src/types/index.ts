@@ -33,3 +33,12 @@ export interface HealthAlert {
   sensitiveGroups: string;
   actionTip: string;
 }
+
+export interface SavedLocation {
+  id: number;
+  label: string;
+  latitude: number;
+  longitude: number;
+  alertsEnabled: boolean;
+  createdAt: string | null;
+}

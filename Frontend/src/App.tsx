@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import MapView from "./pages/MapView";
 import NodeHistory from "./pages/NodeHistory";
 import Profile from "./pages/Profile";
+import SavedLocations from "./pages/SavedLocations";
 import OAuth2RedirectHandler from "./pages/OAuth2RedirectHandler";
 import CompleteProfile from "./pages/CompleteProfile";
 import { useAuth } from "./context/AuthContext";
@@ -97,6 +98,7 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/map" element={<MapView />} />
         <Route path="/node/:nodeId" element={<NodeHistory />} />
+        <Route path="/locations" element={<SavedLocations />} />
         <Route path="/profile" element={<Profile />} />
       </Route>
 

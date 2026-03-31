@@ -204,7 +204,7 @@ function LoginForm({ onClose, onSwitch }: { onClose: () => void; onSwitch: () =>
 }
 
 /* ────── Register Form ────── */
-function RegisterForm({ onClose, onSwitch }: { onClose: () => void; onSwitch: () => void }) {
+function RegisterForm({ onSwitch }: { onClose: () => void; onSwitch: () => void }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

@@ -41,8 +41,20 @@ app:
   nodeApiKey: ${NODE_API_KEY}
   geminiApiKey: ${GEMINI_API_KEY}
   alertRadiusKm: 5.0
+  vapid:
+    publicKey: ${VAPID_PUBLIC_KEY}
+    privateKey: ${VAPID_PRIVATE_KEY}
   oauth2:
     redirectUri: "http://localhost:5173/oauth2/redirect"
+
+spring.mail:
+  host: smtp.gmail.com
+  port: 587
+  username: ${GMAIL_USERNAME}
+  password: ${GMAIL_APP_PASSWORD}
+  properties:
+    mail.smtp.auth: true
+    mail.smtp.starttls.enable: true
 
 server:
   port: 8080

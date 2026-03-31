@@ -59,6 +59,7 @@ export default function Header({ lastRefresh, refreshing, onRefresh }: HeaderPro
         {[
           { to: "/dashboard", label: "Dashboard" },
           { to: "/map", label: "Map" },
+          { to: "/locations", label: "Locations" },
           { to: "/", label: "Home" },
           { to: "/about", label: "About" },
           { to: "/contact", label: "Contact" },
